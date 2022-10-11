@@ -12,18 +12,18 @@ else
         echo "revoltserver=ID" >> .env
         echo "discordguild=ID" >> .env
     else
-    if [ ! -f map.json ]; then
-        echo "map.json does not exist - making it blank"
-        echo "{}" > map.json
-    else
-        if [ ! -d venv ]; then
-            python3 -m venv venv
+        if [ ! -f map.json ]; then
+            echo "map.json does not exist - making it blank"
+            echo "{}" > map.json
+        else
+            if [ ! -d venv ]; then
+                python3 -m venv venv
+            fi
+            source venv/bin/activate
+            if [ ! -d venv/lib/python3.9/site-packages/discord ]; then
+                pip3 install -r requirements.txt
+            fi
+            python3 main.py
         fi
-        source venv/bin/activate
-        if [ ! -d venv/lib/python3.9/site-packages/discord ]; then
-            pip3 install -r requirements.txt
-        fi
-        python3 main.py
-    fi
     fi
 fi
