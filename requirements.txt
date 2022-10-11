@@ -1,0 +1,7 @@
+git+https://github.com/revoltchat/revolt.py
+discord.py
+python-dotenv
+aenum
+ulid
+typing-extensions
+nest-asyncio
