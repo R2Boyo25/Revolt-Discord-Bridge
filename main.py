@@ -124,12 +124,13 @@ class Client(revolt.Client):
             content = message.content
 
             def repl(match):
-                c = utils.get(server.members, id=match.group(1))
+                try:
+                    c = utils.get(server.members, id=match.group(1))
 
-                if not c:
+                    return "@" + (c.nickname or c.name)
+
+                except:
                     return match.group()
-
-                return "@" + (c.nickname or c.name)
 
             content = re.sub("<@([0-9a-zA-Z]*)>", repl, content)
 
