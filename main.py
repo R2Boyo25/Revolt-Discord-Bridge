@@ -62,30 +62,27 @@ async def on_message(message):
 
         content = message.content
 
-        a = re.match("<@([0-9]*)>", content)
-
-        if a:
+        def repl(match):
             c = discord.utils.get(
-                guild.members, id=int(a.group(1)))
+                guild.members, id=int(match.group(1)))
 
-            content = re.sub("<@([0-9]*)>", "@" +
-                             (c.nick or c.name), content)
+            if not c:
+                return match.group()
 
-        a = re.match("@(\S*)", content)
+            return "@" + (c.nick or c.name)
 
-        if a:
+        content = re.sub("<@([0-9]*)>", repl, content)
 
+        def repl(match):
             try:
-                b = utils.get(server.members, nickname=a.group(1))
-
+                return f"{utils.get(server.members, nickname=match.group(1)).id}>"
             except:
-                b = None
+                try:
+                    return f"<@{utils.get(server.members, name=match.group(1)).id}>"
+                except:
+                    return match.group()
 
-            if not b:
-                b = utils.get(server.members, name=a.group(1))
-
-            if b:
-                content = re.sub("@(\S)*", f"<@{b.id}>", content)
+        content = re.sub("@(\S*)", repl, content)
 
         if cc := "\n".join([attachment.url for attachment in message.attachments]):
             content += "\n" + cc
@@ -126,25 +123,28 @@ class Client(revolt.Client):
         if message.channel.id in mapchannel:
             content = message.content
 
-            a = re.match("<@([0-9a-zA-Z]*)>", content)
+            def repl(match):
+                c = utils.get(server.members, id=match.group(1))
 
-            if a:
-                c = utils.get(
-                    server.members, id=a.group(1))
+                if not c:
+                    return match.group()
 
-                content = re.sub("<@([0-9a-zA-Z]*)>", "@" +
-                                 (c.nickname or c.name), content)
+                return "@" + (c.nickname or c.name)
 
-            a = re.match("@(\S*)", content)
+            content = re.sub("<@([0-9a-zA-Z]*)>", repl, content)
 
-            if a:
-                b = discord.utils.get(guild.members, nick=a.group(1))
+            def repl(match):
+                b = discord.utils.get(guild.members, nick=match.group(1))
 
                 if not b:
-                    b = discord.utils.get(guild.members, name=a.group(1))
+                    b = discord.utils.get(guild.members, name=match.group(1))
 
-                if b:
-                    content = re.sub("@(\S)*", f"<@{b.id}>", content)
+                if not b:
+                    return match.group()
+
+                return f"<@{b.id}>"
+
+            content = re.sub("@(\S*)", repl, content)
 
             if cc := "\n".join([attachment.url for attachment in message.attachments]):
                 content += "\n" + cc
